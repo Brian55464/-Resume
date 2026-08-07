@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bozhang Huang | Software Engineer</title>
+    <!-- 引入 Inter 與等寬 Fira Code 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* [核心系統] 保持配色系統，僅優化質感與動態 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* 顏色完全不變 */
+            --bg-blue: #0A192F;         
+            --card-blue: #112240;       
+            --text-white: #F8FAFC;      
+            --text-gray: #A8B2D1;       
+            --accent-yellow: #FFC425;   
+            --border-light: rgba(255, 255, 255, 0.1);
+
+            /* 更極致、輕盈的動態曲線 (Snap-back) */
+            --transition-bounce: cubic-bezier(0.25, 1.1, 0.5, 1.25);
+            --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+            
+            /* 字體設定 */
+            --font-sans: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        /* [1. 背景質感] 增加幾何網格背景，創造藍圖感 */
+        body {
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            color: var(--text-gray);
+            background-color: var(--bg-blue);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.15; /* 極微弱，增加層次 */
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        h1, h2, h3, h4 { color: var(--text-white); font-weight: 800; letter-spacing: -0.02em; }
+
+        /* [2. 捲動浮現動畫升級] 增加縮放效果，更有張力 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            transition: opacity 1s var(--transition-smooth), transform 1s var(--transition-smooth);
+            will-change: transform, opacity;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* --- 導覽列 --- */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            z-index: 100;
+            padding: 1.2rem 0;
+        }
+
+        nav .container {
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1300px; margin: 0 auto; padding: 0 3rem;
+        }
+
+        nav .logo {
+            font-family: var(--font-mono);
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--accent-yellow); /* 改為黃色 */
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+        }
+
+        /* 將原本的小黃方塊改為動態括號 */
+        nav .logo::before { content: '<'; font-weight: 400; opacity: 0.5; }
+        nav .logo::after { content: '/>'; font-weight: 400; opacity: 0.5; }
+
+        nav ul { display: flex; list-style: none; gap: 3rem; }
+
+        nav a {
+            text-decoration: none; color: var(--text-white);
+            font-size: 0.9rem; font-weight: 500; font-family: var(--font-mono);
+            position: relative; padding-bottom: 4px;
+        }
+
+        /* 導覽列底線 Hover 動畫：改為從中間展開 */
+        nav a::after {
+            content: ''; position: absolute; bottom: 0; left: 50%;
+            width: 0%; height: 2px;
+            background-color: var(--accent-yellow);
+            transition: width 0.3s ease, left 0.3s ease;
+        }
+
+        nav a:hover::after { width: 100%; left: 0; }
+        nav a:hover { color: var(--accent-yellow); transition: color 0.3s; }
+
+        /* --- 英雄區塊 (Hero) --- */
+        .hero {
+            padding: 7rem 2rem 6rem; /* 增加留白 */
+            max-width: 1100px; margin: 0 auto;
+        }
+
+        .hero-label {
+            display: inline-block;
+            color: var(--accent-yellow);
+            font-weight: 600; font-size: 1rem;
+            letter-spacing: 3px; text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem); /* 更大器 */
+            line-height: 1; margin-bottom: 1.5rem;
+            font-weight: 900;
+        }
+
+        /* 關鍵字黃色底線升級：增加動態展開效果 */
+        .highlight {
+            position: relative; z-index: 1; white-space: nowrap;
+        }
+        .highlight::after {
+            content: ''; position: absolute;
+            bottom: 6px; left: 0; width: 0%; /* 初始寬度為0 */
+            height: 15px; background-color: var(--accent-yellow);
+            z-index: -1; transform: skewX(-15deg);
+            transition: width 0.8s 1.2s var(--transition-smooth); /* 捲動到時才延遲展開 */
+        }
+        .reveal.active .highlight::after { width: 100%; } /* 觸發動畫時展開 */
+
+        .hero .subtitle {
+            font-size: 1.2rem; max-width: 700px;
+            margin-bottom: 3rem; line-height: 1.8;
+            color: var(--text-gray);
+        }
+
+        /* 將 subtitle 中的關鍵字也加粗，增加硬核感 */
+        .hero .subtitle strong { color: var(--text-white); font-weight: 700; font-family: var(--font-mono); font-size: 1.1em;}
+
+        .cta-buttons { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+
+        /* [按鈕 Neo-brutalist 升級] 增加更強烈的機械反饋 */
+        .btn {
+            padding: 1.2rem 3rem;
+            font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700;
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s var(--transition-bounce); /* 彈性轉場 */
+            border: 2px solid transparent;
+            display: inline-flex; align-items: center; justify-content: center;
+            position: relative; top: 0; left: 0;
+        }
+
+        .btn-primary {
+            background: var(--accent-yellow); color: var(--bg-blue);
+            border-color: var(--accent-yellow);
+            /* 更強烈的實心陰影 */
+            box-shadow: 8px 8px 0px rgba(248, 250, 252, 0.2);
+        }
+
+        .btn-primary:hover {
+            /* 滑鼠懸停：按鈕往左上移，陰影往右下延伸，創造機械按下的觸感 */
+            top: -4px; left: -4px;
+            box-shadow: 14px 14px 0px rgba(248, 250, 252, 1);
+        }
+
+        .btn-secondary {
+            background: transparent; color: var(--text-white);
+            border-color: var(--border-light);
+            box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.0); /* 初始無陰影 */
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-white);
+            background: rgba(255, 255, 255, 0.05);
+            top: -2px; left: -2px;
+            box-shadow: 6px 6px 0px rgba(255, 255, 255, 0.8);
+        }
+
+        /* --- 區塊共用 --- */
+        .section-container { max-width: 1300px; margin: 0 auto; padding: 8rem 3rem; }
+
+        .section-header {
+            display: flex; align-items: center; margin-bottom: 5rem; gap: 1.5rem;
+        }
+
+        /* 標題加上 monospace 序號，更像代碼檔案 */
+        .section-header h2 {
+            font-size: 2.5rem; white-space: nowrap; font-weight: 800;
+            display: flex; align-items: center; gap: 15px;
+        }
+        
+        .section-header h2::before {
+            content: '//'; color: var(--accent-yellow);
+            font-family: var(--font-mono); font-weight: 400; opacity: 0.7;
+        }
+
+        .section-header::after {
+            content: ''; height: 1px; width: 100%;
+            background: linear-gradient(90deg, var(--border-light), transparent); /* 漸層線 */
+        }
+
+        /* --- [3. 專案卡片區塊升級] --- */
+        .projects-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3.5rem;
+        }
+
+        @media (min-width: 1100px) {
+            .projects-grid { grid-template-columns: repeat(6, 1fr); }
+            .project-card:nth-child(1), .project-card:nth-child(2), .project-card:nth-child(3) { grid-column: span 2; }
+            .project-card:nth-child(4), .project-card:nth-child(5) { grid-column: span 3; }
+        }
+
+        .project-card {
+            background: var(--card-blue);
+            border: 1px solid var(--border-light); /* 更細的邊框 */
+            padding: 3rem; display: flex; flex-direction: column;
+            transition: all 0.3s var(--transition-bounce);
+            position: relative;
+            overflow: hidden; /* 用於隱藏光暈 */
+        }
+
+        /* 卡片 Hover：增加黃色實心陰影與黃色呼吸光暈 */
+        .project-card:hover {
+            transform: translate(-8px, -8px);
+            border-color: var(--accent-yellow);
+            /* 黃色實心陰影 */
+            box-shadow: 10px 10px 0px var(--accent-yellow);
+            z-index: 2;
+        }
+        
+        /* 增加一個極微弱的呼吸光暈在Hover時浮現 */
+        .project-card::before {
+            content: ''; position: absolute;
+            top: 50%; left: 50%; width: 100px; height: 100px;
+            background: var(--accent-yellow);
+            filter: blur(80px); opacity: 0;
+            transition: opacity 0.5s var(--transition-smooth);
+            pointer-events: none; transform: translate(-50%, -50%);
+        }
+        .project-card:hover::before { opacity: 0.15; }
+
+        .project-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 1.2rem;
+        }
+
+        .project-icon { color: var(--accent-yellow); font-family: var(--font-sans); }
+
+        .project-card h3 {
+            font-size: 1.6rem; line-height: 1.2; margin-bottom: 1.5rem; font-weight: 800;
+        }
+
+        .project-card p {
+            font-size: 1.05rem; line-height: 1.7; margin-bottom: 2.5rem; flex-grow: 1;
+            color: var(--text-gray); text-align: justify;
+        }
+
+        .project-tags { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 2rem; }
+
+        /* 標籤升級：更像硬核的藥丸顆粒 */
+        .tag {
+            color: var(--accent-yellow);
+            background: rgba(255, 196, 37, 0.05);
+            font-family: var(--font-mono);
+            font-size: 0.8rem; font-weight: 500;
+            padding: 0.4rem 1rem; border-radius: 4px; /* 改為方角，更酷 */
+            border: 1px solid rgba(255, 196, 37, 0.15);
+            transition: all 0.2s;
+        }
+
+        .project-card:hover .tag {
+            background: rgba(255, 196, 37, 0.1); border-color: rgba(255, 196, 37, 0.4);
+        }
+
+        .project-links a {
+            color: var(--text-white); text-decoration: none;
+            font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; transition: color 0.2s;
+        }
+
+        .project-links a:hover { color: var(--accent-yellow); }
+        .project-links a::after { content: '→'; transition: transform 0.2s; }
+        .project-links a:hover::after { transform: translateX(5px); }
+
+        /* --- 技能區塊 --- */
+        .skills-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4rem;
+        }
+
+        .skill-group h4 {
+            font-size: 1.3rem; margin-bottom: 2rem;
+            color: var(--accent-yellow); font-family: var(--font-mono);
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        .skill-group h4::before { content: '/'; opacity: 0.5; }
+
+        .skill-group ul { list-style: none; }
+
+        .skill-group ul li {
+            font-size: 1.1rem; margin-bottom: 1.2rem;
+            display: flex; align-items: center; color: var(--text-white);
+            transition: transform 0.2s var(--transition-bounce);
+        }
+        
+        /* 技能列表 Hover 時微弱凸起 */
+        .skill-group ul li:hover { transform: translateX(5px); }
+
+        /* 原本的三角箭頭改為 monospace 字體符號 */
+        .skill-group ul li::before {
+            content: '>>'; color: var(--accent-yellow);
+            margin-right: 15px; font-size: 0.9rem; font-family: var(--font-mono); opacity: 0.8;
+        }
+
+        /* --- 頁腳 --- */
+        footer {
+            padding: 10rem 2rem 5rem; text-align: center;
+            border-top: 1px solid var(--border-light);
+            background: var(--card-blue);
+        }
+
+        footer h2 {
+            font-size: 3rem; margin-bottom: 2rem;
+            font-weight: 900; letter-spacing: -1px;
+        }
+
+        footer p {
+            max-width: 550px; margin: 0 auto 4rem;
+            font-size: 1.1rem; color: var(--text-gray); line-height: 1.8;
+        }
+
+        .social-links {
+            display: flex; justify-content: center; gap: 3rem; margin-bottom: 5rem;
+            font-family: var(--font-mono);
+        }
+
+        .social-links a {
+            color: var(--text-white); text-decoration: none;
+            font-weight: 600; font-size: 1rem; position: relative; padding-bottom: 5px;
+        }
+
+        /* 頁腳 Social Links 底線動畫：由右向左消失的酷效果 */
+        .social-links a::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 2px;
+            background-color: var(--accent-yellow);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.3s var(--transition-smooth);
+        }
+
+        .social-links a:hover::after { transform: scaleX(1); }
+        .social-links a:hover { color: var(--accent-yellow); transition: color 0.3s; }
+
+        .copyright {
+            font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-gray); opacity: 0.7;
+        }
+
+        /* 響應式優化 */
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            nav .container { padding: 0 2rem; }
+            .hero { padding: 10rem 1.5rem 8rem; }
+            .hero h1 { font-size: 3rem; }
+            .section-container { padding: 6rem 1.5rem; }
+            .section-header h2 { font-size: 2rem; }
+            .projects-grid { gap: 2.5rem; }
+            .project-card { padding: 2.5rem; }
+            footer h2 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- [4. 背景顆粒幾何圖形 (由CSS body::before處理)] -->
+
+    <!-- 導覽列 -->
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">Bozhang Huang</a>
+            <ul>
+                <li><a href="#projects">Work</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 英雄區塊 -->
+    <section class="hero reveal active">
+        <span class="hero-label">Engineering the Future</span>
+        <h1>Transforming Data into Insights and <br><span class="highlight">Turning Technology <br>into Value</span> </h1>
+        <p class="subtitle" style="text-align: justify;">
+            您好，我是 <strong>黃博章</strong>。目前就讀於中山大學資訊管理研究所碩二，專注於 AI<br>具 Python、Java 、資料分析能力與自然語言處理 (NLP)<br>致力以技術解決問題。
+        </p>
+        <div class="cta-buttons">
+            <a href="#projects" class="btn btn-primary">探索精選專案</a>
+            <a href="#contact" class="btn btn-secondary">聯絡我</a>
+        </div>
+    </section>
+
+    <!-- 專案區塊 -->
+    <section class="section-container" id="projects">
+        <div class="section-header reveal">
+            <h2>Selected Works</h2>
+        </div>
+        
+        <div class="projects-grid">
+            <!-- 專案 1 -->
+            <div class="project-card reveal delay-1">
+                <div class="project-header">
+                    <div class="project-icon">✦</div>
+                    <div class="project-id">/01</div>
+                </div>
+                <h3>Big Data Analysis and Application</h3>
+                <p>運用 Python 建立資料分析流程，完成資料清洗、統計分析與特徵整理，將大量數據轉化為具價值的分析結果。</p>
+                <div class="project-tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Statistical</span>
+                    <span class="tag">Data Mining</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://github.com/Brian55464/BigDataAnalysis" target="_blank">View Detail</a>
+                </div>
+            </div>
+
+            <!-- 專案 2 -->
+            <div class="project-card reveal delay-2">
+                <div class="project-header">
+                    <div class="project-icon">✦</div>
+                    <div class="project-id">/02</div>
+                </div>
+                <h3>Data Visualization Dashboard</h3>
+                <p>設計互動式資料儀表板，將複雜數據轉化為直觀圖表，協助快速掌握趨勢變化、關鍵指標與分析結果。</p>
+                <div class="project-tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">JavaScript</span>
+                    <span class="tag">System Design</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://brian55464.github.io/DataVisualization/" target="_blank">View Detail</a>
+                </div>
+            </div>
+
+            <!-- 專案 3 -->
+            <div class="project-card reveal delay-3">
+                <div class="project-header">
+                    <div class="project-icon">✦</div>
+                    <div class="project-id">/03</div>
+                </div>
+                <h3>NLP Sentiment Intelligence</h3>
+                <p>結合自然語言處理與情緒分析技術，解析群眾意見與討論熱度，建立資料驅動的預測模型。</p>
+                <div class="project-tags">
+                    <span class="tag">Text Mining</span>
+                    <span class="tag">Sentiment</span>
+                    <span class="tag">TF-IDF</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://brian55464.github.io/-predict/" target="_blank">View Detail</a>
+                </div>
+            </div>
+
+            <!-- 專案 4 -->
+            <div class="project-card reveal delay-1">
+                <div class="project-header">
+                    <div class="project-icon">✦</div>
+                    <div class="project-id">/04</div>
+                </div>
+                <h3>Social Media Analytics</h3>
+                <p>整合社群資料爬取、文本前處理、斷詞、關鍵字擷取與情緒分析，深入洞察社群討論趨勢與使用者觀點。</p>
+                <div class="project-tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Web Crawling</span>
+                    <span class="tag">NLP</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://github.com/Brian55464/SocialAnalyze" target="_blank">View Detail</a>
+                </div>
+            </div>
+
+            <!-- 專案 5 -->
+            <div class="project-card reveal delay-2">
+                <div class="project-header">
+                    <div class="project-icon">✦</div>
+                    <div class="project-id">/05</div>
+                </div>
+                <h3>Digital Content Marketing</h3>
+                <p>以品牌故事為核心規劃網站內容，透過行銷與敘事設計，傳遞產業特色，提升品牌形象與使用者體驗。</p>
+                <div class="project-tags">
+                    <span class="tag">SEO</span>
+                    <span class="tag">Figma</span>
+                    <span class="tag">UX/UI</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://brian55464.github.io/webserve/" target="_blank">View Detail</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能區塊 -->
+    <section class="section-container" id="skills">
+        <div class="section-header reveal">
+            <h2>Technical Expertise</h2>
+        </div>
+        
+        <div class="skills-grid">
+            <div class="skill-group reveal delay-1">
+                <h4>Data & AI</h4>
+                <ul>
+                    <li>Python (Pandas, Matplotlib)</li>
+                    <li>Natural Language Processing</li>
+                    <li>Text Mining & Sentiment Analysis</li>
+                    <li>Statistical Analysis</li>
+                    <li>Web Scraping</li>
+                </ul>
+            </div>
+            
+            <div class="skill-group reveal delay-2">
+                <h4>Engineering</h4>
+                <ul>
+                    <li>Java Programming</li>
+                    <li>Data Structures & Algorithms</li>
+                    <li>SQL (MySQL, SQL Server)</li>
+                    <li>System Design</li>
+                </ul>
+            </div>
+
+            <div class="skill-group reveal delay-3">
+                <h4>Tools & Misc</h4>
+                <ul>
+                    <li>Tableau Data Visualization</li>
+                    <li>UI/UX Aesthetic Awareness</li>
+                    <li>Figma</li>
+                    <li>Git / VS Code</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁腳 -->
+    <footer id="contact" class="reveal">
+        <h2>Let's Connect</h2>
+        <p>目前正在尋找軟體開發、資料分析或 AI 相關實習機會。如果您對我的作品有興趣，歡迎與我聯繫。</p>
+        
+        <div class="social-links">
+            <a href="mailto:cyc464@gmail.com">Email</a>
+        </div>
+        
+        <div class="copyright">
+            Designed & Built with <span style="color:var(--accent-yellow)">✦</span> by Bozhang Huang © 2026
+        </div>
+    </footer>
+
+    <!-- 捲動觸發動畫腳本 (不變) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target); // 只觸發一次
+                    }
+                });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('.reveal');
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
