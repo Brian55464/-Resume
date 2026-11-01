@@ -89,7 +89,7 @@
         else a.removeAttribute('aria-current');
       });
     }), { rootMargin: '-15% 0px -50% 0px' });
-    ['about', 'work', 'contact'].forEach(id => {
+    ['about', 'work', 'engineering', 'contact'].forEach(id => {
       const section = document.getElementById(id);
       if (section) navObserver.observe(section);
     });
@@ -127,28 +127,27 @@
     document.querySelectorAll('[data-agent-demo]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
   }));
 
-  const projects = {
-    filmwise: { shape: 0, category: 'ANDROID / PHOTOGRAPHY', description: '底片攝影的測光與曝光參考工具。', link: '查看 Filmwise' },
-    coldchain: { shape: 1, category: 'WEB / BRAND STORYTELLING', description: '用捲動敘事介紹臺灣鳳梨的冷鏈旅程。', link: '查看金鳳出航' },
-    agent: { shape: 2, category: 'LINE / AI INTEGRATION', description: '整合行程、提醒、換匯與分帳的個人助手。', link: '查看 LINE Agent' }
-  };
   let currentShape = 0, targetShape = 0;
-  document.querySelectorAll('[data-hero-project]').forEach(button => button.addEventListener('click', () => {
-    const id = button.dataset.heroProject;
-    const project = projects[id];
-    if (!project) return;
-    targetShape = project.shape;
+  const hero = document.getElementById('home');
+  const geometryButton = document.querySelector('.geometry-toggle');
+  const geometryNames = [ ['01 / TORUS', '環面'], ['02 / RIBBON', '扭轉曲面'], ['03 / SPHERE', '球體'] ];
+  function nextGeometry() {
+    targetShape = (targetShape + 1) % geometryNames.length;
     if (reduced) currentShape = targetShape;
-    document.getElementById('hero-project-category').textContent = project.category;
-    document.getElementById('hero-project-description').textContent = project.description;
-    const link = document.getElementById('hero-project-link');
-    link.setAttribute('href', '#' + id);
-    link.replaceChildren(document.createTextNode(project.link + ' '));
-    const arrow = document.createElement('span'); arrow.textContent = '↗'; link.append(arrow);
-    document.querySelectorAll('[data-hero-project]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    const [label, name] = geometryNames[targetShape];
+    document.getElementById('geometry-name').textContent = label;
+    geometryButton.setAttribute('aria-label', '切換首頁圖形，目前為' + name);
+    hero.dataset.geometry = String(targetShape);
     render(performance.now());
     schedule();
-  }));
+  }
+  hero.dataset.geometry = '0';
+  geometryButton?.addEventListener('click', nextGeometry);
+  hero.addEventListener('click', event => {
+    if (event.button !== 0 || event.target.closest('a, button, input, select, textarea, summary, label')) return;
+    if (window.getSelection && !window.getSelection().isCollapsed) return;
+    nextGeometry();
+  });
 
   const canvas = document.getElementById('orbit-canvas');
   const ctx = canvas?.getContext('2d');

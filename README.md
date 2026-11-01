@@ -2,7 +2,7 @@
 
 [查看作品集](https://brian55464.github.io/-Resume/)
 
-以深藍、暖白與黃色為主的響應式作品集。首頁可切換三個作品與對應的立體線網造型；專案區提供操作畫面、功能摘要與清楚的作品入口。支援捲動揭露及減少動畫。
+資訊管理研究生的工程作品集，以深藍、暖白與黃色為主。首頁點擊空白或圖形區域可切換三種參數曲面，並提供鍵盤按鈕；互動只作用於首頁區塊。專案區包含操作畫面、功能摘要與作品入口，技術筆記則呈現資料流、設計取捨與驗證範圍。
 
 ## 作品
 
@@ -23,7 +23,7 @@
 
 ## 設計參考
 
-以原網站深藍與黃色延伸個人識別，參考 [Dennis Snellenberg](https://dennissnellenberg.com/) 的字體層次、留白與互動節奏，以及 [Bruno Simon](https://bruno-simon.com/) 用互動呈現技術的思路，重新設計版面與程式。未複製其程式碼、照片或素材。
+以原網站深藍與黃色延伸個人識別，參考 [Brittany Chiang](https://brittanychiang.com/) 的工程經歷與專案組織方式，以及 [Lee Robinson](https://leerob.com/) 的簡潔自介與技術筆記結構。保留前期參考 [Dennis Snellenberg](https://dennissnellenberg.com/) 與 [Bruno Simon](https://bruno-simon.com/) 的互動節奏，重新設計版面與程式。未複製其程式碼、照片或素材。
 
 動畫尊重系統減少動態效果設定，作品集右上角亦可切換。Filmwise 圖片為實際 App 示範畫面，網頁曝光試算不是即時測光。字型授權隨各專案提供。
 
