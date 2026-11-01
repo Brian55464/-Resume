@@ -89,7 +89,7 @@
         else a.removeAttribute('aria-current');
       });
     }), { rootMargin: '-15% 0px -50% 0px' });
-    ['about', 'work', 'engineering', 'contact'].forEach(id => {
+    ['home', 'about', 'work', 'engineering', 'contact'].forEach(id => {
       const section = document.getElementById(id);
       if (section) navObserver.observe(section);
     });
