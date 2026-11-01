@@ -129,25 +129,18 @@
 
   let currentShape = 0, targetShape = 0;
   const hero = document.getElementById('home');
-  const geometryButton = document.querySelector('.geometry-toggle');
-  const geometryNames = [ ['01 / TORUS', '環面'], ['02 / RIBBON', '扭轉曲面'], ['03 / SPHERE', '球體'] ];
+  const geometryNames = ['環面', '扭轉曲面', '球體'];
+  let burstStarted = 0;
   function nextGeometry() {
     targetShape = (targetShape + 1) % geometryNames.length;
     if (reduced) currentShape = targetShape;
-    const [label, name] = geometryNames[targetShape];
-    document.getElementById('geometry-name').textContent = label;
-    geometryButton.setAttribute('aria-label', '切換首頁圖形，目前為' + name);
+    canvas.setAttribute('aria-label', '互動圖形：' + geometryNames[targetShape] + '。點擊圖形或按 Enter 切換。');
     hero.dataset.geometry = String(targetShape);
+    burstStarted = reduced ? 0 : performance.now();
     render(performance.now());
     schedule();
   }
   hero.dataset.geometry = '0';
-  geometryButton?.addEventListener('click', nextGeometry);
-  hero.addEventListener('click', event => {
-    if (event.button !== 0 || event.target.closest('a, button, input, select, textarea, summary, label')) return;
-    if (window.getSelection && !window.getSelection().isCollapsed) return;
-    nextGeometry();
-  });
 
   const canvas = document.getElementById('orbit-canvas');
   const ctx = canvas?.getContext('2d');
@@ -167,6 +160,7 @@
     }
   }
   let width = 0, height = 0, pointerX = 0, pointerY = 0, visible = true, frame = null, last = 0;
+  let projectedPoints = [];
   function resize() {
     if (!canvas || !ctx) return;
     const rect = canvas.getBoundingClientRect();
@@ -183,7 +177,9 @@
     const from = Math.floor(currentShape), to = Math.min(from + 1, 2), blend = currentShape - from;
     const angle = reduced ? .7 : time * .00012;
     const ax = .85 + pointerY * .23, ay = -.45 + pointerX * .3, az = -.55 + angle;
-    const scale = Math.min(width, height) * .255;
+    const burst = burstStarted && !reduced ? Math.min((time - burstStarted) / 850, 1) : 1;
+    const baseScale = Math.min(width, height) * .255;
+    const scale = baseScale * (1 + (burst < 1 ? Math.sin(burst * Math.PI) * .035 : 0));
     ctx.clearRect(0, 0, width, height);
     const mapped = points.map(point => {
       const a = point.forms[from], b = point.forms[to];
@@ -195,6 +191,7 @@
       return { x: width * .53 + (rx * Math.cos(az) - ry * Math.sin(az)) * scale,
         y: height * .46 + (rx * Math.sin(az) + ry * Math.cos(az)) * scale, z: depth, column: point.column };
     });
+    projectedPoints = mapped;
     for (const front of [false, true]) {
       ctx.beginPath();
       mapped.forEach((p, index) => {
@@ -218,6 +215,13 @@
         ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.stroke();
       }
     });
+    if (burst < 1) {
+      ctx.strokeStyle = `rgba(255,209,98,${(1 - burst) * .3})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(width * .53, height * .46, baseScale * (1.55 + burst * .55), baseScale * (1.5 + burst * .5), -.3, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     ctx.strokeStyle = 'rgba(153,175,196,.17)'; ctx.lineWidth = .6;
     ctx.setLineDash([2, 9]); ctx.beginPath();
     ctx.ellipse(width * .53, height * .46, scale * 1.7, scale * 1.65, -.3, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
@@ -227,6 +231,21 @@
     ctx.fillStyle = '#ffcf59'; ctx.fillRect(x - 2, y - 2, 4, 4);
     ctx.strokeStyle = 'rgba(255,207,89,.12)'; ctx.beginPath();
     ctx.moveTo(x, y - 12); ctx.lineTo(x, y + 12); ctx.moveTo(x - 12, y); ctx.lineTo(x + 12, y); ctx.stroke();
+  }
+  function isOnGeometry(x, y, tolerance = 13) {
+    if (innerWidth <= 700 && x < width * .28) return false;
+    const threshold = tolerance * tolerance;
+    const closeTo = (a, b) => {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const length = dx * dx + dy * dy;
+      const t = length ? Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / length)) : 0;
+      return (x - a.x - t * dx) ** 2 + (y - a.y - t * dy) ** 2 <= threshold;
+    };
+    return projectedPoints.some((point, index) => {
+      if ((x - point.x) ** 2 + (y - point.y) ** 2 <= threshold) return true;
+      if (point.column < columns - 1 && closeTo(point, projectedPoints[index + 1])) return true;
+      return point.column % 4 === 0 && closeTo(point, projectedPoints[(index + columns) % projectedPoints.length]);
+    });
   }
   function animate(time) {
     frame = null;
@@ -245,12 +264,24 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
       visible = entries[0].isIntersecting; schedule();
     }).observe(canvas);
-    canvas.addEventListener('pointermove', event => {
-      if (reduced || event.pointerType !== 'mouse') return;
+    canvas.addEventListener('click', event => {
+      if (event.button !== 0) return;
       const rect = canvas.getBoundingClientRect();
+      if (isOnGeometry(event.clientX - rect.left, event.clientY - rect.top, event.pointerType === 'touch' ? 20 : 13)) nextGeometry();
+    });
+    canvas.addEventListener('keydown', event => {
+      if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+        event.preventDefault(); nextGeometry();
+      }
+    });
+    canvas.addEventListener('pointermove', event => {
+      if (event.pointerType !== 'mouse') return;
+      const rect = canvas.getBoundingClientRect();
+      canvas.style.cursor = isOnGeometry(event.clientX - rect.left, event.clientY - rect.top) ? 'pointer' : 'default';
+      if (reduced) return;
       pointerX = (event.clientX - rect.left) / rect.width - .5;
       pointerY = (event.clientY - rect.top) / rect.height - .5;
     });
-    canvas.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; });
+    canvas.addEventListener('pointerleave', () => { pointerX = 0; pointerY = 0; canvas.style.cursor = 'default'; });
   }
 })();
