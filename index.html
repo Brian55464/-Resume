@@ -21,7 +21,7 @@
     <div class="note-content">
       <div class="flow-heading"><span>資料流</span><small>EXPOSURE PIPELINE</small></div>
       <ol class="system-flow"><li><small>INPUT</small><strong>相機讀值</strong><span>CameraX / Camera2</span></li><li><small>CONTEXT</small><strong>EV 100 + ISO</strong><span>拍攝意圖・器材規格</span></li><li><small>LOGIC</small><strong>曝光核心</strong><span>換算・刻度・條件判斷</span></li><li><small>OUTPUT</small><strong>建議與紀錄</strong><span>Compose / 本機儲存</span></li></ol>
-      <div class="note-columns"><div><h4>設計取捨</h4><p>未知 ISO 與相機規格保留為 <code>null</code>。通用參考與相機實際可用刻度分開，避免產生看似可用的虛構設定。</p></div><div><h4>驗證與限制</h4><p>核心計算檢查、獨立 Android QA 與模擬器操作驗證。手機測光與 AR 估距精度仍需實機對照。</p></div></div>
+      <div class="note-columns"><div><h4>設計取捨</h4><p>未知 ISO 與相機規格保留 <code>null</code>。通用參考與相機實際可用刻度分開，避免產生虛構設定。</p></div><div><h4>驗證與限制</h4><p>核心計算檢查、獨立 Android QA 與模擬器操作驗證。手機測光與 AR 估距精度仍需實機對照。</p></div></div>
       <details class="technical-detail"><summary>查看曝光組合的判斷方式 <span>＋</span></summary><div><p>遍歷相機快門刻度，尋找最接近讀值的曝光組合；只保留誤差在半格內的結果。以下節錄自曝光核心：</p><pre><code>double difference = ev100 - ExposureEngine.exposureEV(aperture, shutter, iso);
 if (Math.abs(difference) &lt; bestError) {
     bestError = Math.abs(difference);
@@ -34,7 +34,7 @@ if (Math.abs(difference) &lt; bestError) {
     <div class="note-content">
       <div class="flow-heading"><span>服務流程</span><small>REQUEST → CONFIRM → ACTION</small></div>
       <ol class="system-flow"><li><small>ENTRY</small><strong>LINE 訊息</strong><span>自然語句</span></li><li><small>PARSE</small><strong>LLM 欄位整理</strong><span>時間・事項・缺漏</span></li><li><small>CONFIRM</small><strong>確認草稿</strong><span>追問・修改・確認</span></li><li><small>EXECUTE</small><strong>日曆與提醒</strong><span>Calendar / 排程 / D1</span></li></ol>
-      <div class="note-columns"><div><h4>可靠性處理</h4><p>排程以事件與提醒時段記錄推播狀態，重試沿用相同的 retry key，降低回應中斷後重複發送的風險。</p></div><div><h4>資料邊界</h4><p>旅伴分帳使用獨立程式與資料庫。公開頁只介紹架構與流程，不提供原 Agent 的執行入口或私人設定。</p></div></div>
+      <div class="note-columns"><div><h4>可靠性處理</h4><p>排程以事件與提醒時段記錄推播狀態，重試沿用相同的 retry key，降低回應中斷後重複發送的風險。</p></div><div><h4>資料邊界</h4><p>旅伴分帳使用獨立程式與資料庫。公開頁介紹架構與流程，不提供原 Agent 的執行入口或私人設定。</p></div></div>
       <div class="technical-footnote"><span>PUBLIC OVERVIEW</span><p>此處為概念架構。因個資問題，Agent 的行程、帳目與帳號憑證不會載入這個網站。</p></div>
     </div>
   </article>
