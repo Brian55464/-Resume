@@ -2,7 +2,7 @@
 
 [查看作品集](https://brian55464.github.io/-Resume/)
 
-以深藍、暖白與黃色為主的響應式作品集，包含互動式立體線網、捲動揭露、作品操作畫面切換及可關閉的動畫。
+以深藍、暖白與黃色為主的響應式作品集。首頁可切換三個作品與對應的立體線網造型；專案區提供操作畫面、功能摘要與清楚的作品入口。支援捲動揭露及減少動畫。
 
 ## 作品
 
@@ -13,7 +13,7 @@
 
 ## 結構
 
-- `index.html`、`style.css`、`app.js`：作品集。
+- `index.html`、`style.css`、`refinement.css`、`app.js`：作品集。
 - `projects/filmwise/`：Filmwise 專案介紹與公式示範。
 - `projects/coldchain/`：金鳳出航完整網站與素材。
 - `assets/`：作品集圖像。
@@ -26,3 +26,5 @@
 以原網站深藍與黃色延伸個人識別，參考 [Dennis Snellenberg](https://dennissnellenberg.com/) 的字體層次、留白與互動節奏，以及 [Bruno Simon](https://bruno-simon.com/) 用互動呈現技術的思路，重新設計版面與程式。未複製其程式碼、照片或素材。
 
 動畫尊重系統減少動態效果設定，作品集右上角亦可切換。Filmwise 圖片為實際 App 示範畫面，網頁曝光試算不是即時測光。字型授權隨各專案提供。
+
+作品集不提供 GitHub 個人頁或儲存庫連結。資料分析與社群分析作品改為站內展開介紹；聯絡區使用 Email 入口。
